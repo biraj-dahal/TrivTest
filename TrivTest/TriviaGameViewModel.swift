@@ -35,10 +35,12 @@ class TriviaGameViewModel: ObservableObject {
         }
     }
     
-    func selectAnswer(questionIndex: Int, answer: String) {
+    func selectAnswer(questionIndex: Int, answer: String) -> Bool {
         if questionIndex < userAnswers.count {
             userAnswers[questionIndex] = answer
+            return questions[questionIndex].correctAnswer == answer
         }
+        return false
     }
     
     func submitAnswers() -> Int {
