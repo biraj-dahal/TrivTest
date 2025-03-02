@@ -12,6 +12,7 @@ struct ContentView: View {
     @State private var selectedDifficulty: String?
     @State private var selectedType: String?
     @State private var isGameActive = false
+    @State private var selectedTime = 60
     
     @State private var categories: [TriviaCategory] = []
     @State private var isLoadingCategories = true
@@ -121,17 +122,35 @@ struct ContentView: View {
                     }
                 }
                 
-                // Difficulty Selection
+
                 configCard(title: "Difficulty", systemImage: "chart.bar.fill") {
                     difficultyPicker
                 }
                 
-                // Question Type Selection
                 configCard(title: "Question Type", systemImage: "questionmark.circle.fill") {
                     typePicker
                 }
                 
-                // Start Game Button
+                configCard(title: "Time Limit", systemImage: "timer") {
+                    VStack(spacing: 10) {
+                        Text("\(selectedTime) seconds")
+                            .font(.system(size: 36, weight: .bold))
+                            .foregroundColor(Color(hex: "1a2a6c"))
+                            .frame(maxWidth: .infinity)
+                        
+                        Slider(value: Binding(
+                            get: { Double(selectedTime) },
+                            set: { selectedTime = Int($0) }
+                        ), in: 10...120, step: 5)
+                        .accentColor(Color(hex: "1a2a6c"))
+                        
+                        Text("10 seconds minimum, 120 seconds maximum")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(.horizontal, 5)
+                }
+                
                 startGameButton
                     .padding(.vertical, 20)
             }
@@ -272,7 +291,8 @@ struct ContentView: View {
                         )
                     }
                     return vm
-                }()
+                }(),
+                timeLimit: selectedTime 
             ),
             isActive: $isGameActive
         ) {

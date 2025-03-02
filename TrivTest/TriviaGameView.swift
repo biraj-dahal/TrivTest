@@ -10,9 +10,14 @@ import SwiftUI
 struct TriviaGameView: View {
     @ObservedObject var viewModel: TriviaGameViewModel
     @State private var showingResults = false
-    @State private var timeRemaining = 60
+    @State private var timeRemaining: Int
     @State private var timer: Timer? = nil
     @Environment(\.presentationMode) var presentationMode
+    
+    init(viewModel: TriviaGameViewModel, timeLimit: Int = 60) {
+            self.viewModel = viewModel
+            _timeRemaining = State(initialValue: timeLimit)
+        }
     
     private let backgroundGradient = LinearGradient(
         gradient: Gradient(colors: [Color(hex: "1a2a6c"), Color(hex: "b21f1f"), Color(hex: "fdbb2d")]),
