@@ -68,6 +68,7 @@ struct TriviaGameView: View {
                             index: index,
                             question: question,
                             userAnswer: index < viewModel.userAnswers.count ? viewModel.userAnswers[index] : "",
+                            showResult: viewModel.answersSubmitted,  // Pass the flag here
                             onAnswerSelected: { answer in
                                 let _ = viewModel.selectAnswer(questionIndex: index, answer: answer)
                             }
@@ -139,8 +140,8 @@ struct TriviaGameView: View {
                 .shadow(color: Color.black.opacity(0.2), radius: 5, x: 0, y: 2)
         }
         .padding()
-        .disabled(viewModel.userAnswers.contains("") || showingResults)
-        .opacity(viewModel.userAnswers.contains("") || showingResults ? 0.6 : 1)
+        .disabled(viewModel.userAnswers.contains("") || showingResults || viewModel.answersSubmitted)
+        .opacity(viewModel.userAnswers.contains("") || showingResults || viewModel.answersSubmitted ? 0.6 : 1)
     }
     
     func startTimer() {
@@ -149,7 +150,7 @@ struct TriviaGameView: View {
                 timeRemaining -= 1
             } else {
                 timer?.invalidate()
-                let _ = viewModel.submitAnswers()  
+                let _ = viewModel.submitAnswers()
                 showingResults = true
             }
         }
@@ -160,6 +161,7 @@ struct QuestionCardView: View {
     let index: Int
     let question: TriviaQuestion
     let userAnswer: String
+    let showResult: Bool
     let onAnswerSelected: (String) -> Void
     
     private var difficultyColor: Color {
@@ -207,18 +209,19 @@ struct QuestionCardView: View {
                 .fixedSize(horizontal: false, vertical: true)
             
             VStack(spacing: 8) {
-                ForEach(question.allAnswers, id: \.self) { answer in
-                    AnswerButton(
-                        answer: answer.decodedHTML(),
-                        isSelected: userAnswer == answer,
-                        isCorrect: answer == question.correctAnswer,
-                        isAnswered: !userAnswer.isEmpty,
-                        action: {
-                            onAnswerSelected(answer)
+                        ForEach(question.allAnswers, id: \.self) { answer in
+                            AnswerButton(
+                                answer: answer.decodedHTML(),
+                                isSelected: userAnswer == answer,
+                                isCorrect: answer == question.correctAnswer,
+                                isAnswered: !userAnswer.isEmpty,
+                                showResult: showResult,  // Pass the flag here
+                                action: {
+                                    onAnswerSelected(answer)
+                                }
+                            )
                         }
-                    )
-                }
-            }
+                    }
         }
         .padding()
         .background(
@@ -233,11 +236,12 @@ struct AnswerButton: View {
     let answer: String
     let isSelected: Bool
     let isCorrect: Bool
-    let isAnswered: Bool
+    let isAnswered: Bool  // This should indicate if answers have been submitted
+    let showResult: Bool  // New property to control when to show results
     let action: () -> Void
     
     private var backgroundColor: Color {
-        if isAnswered {
+        if showResult && isAnswered {
             if isSelected {
                 return isCorrect ? Color(hex: "4caf50").opacity(0.2) : Color(hex: "f44336").opacity(0.2)
             } else if isCorrect {
@@ -246,12 +250,12 @@ struct AnswerButton: View {
                 return Color.gray.opacity(0.1)
             }
         } else {
-            return Color.gray.opacity(0.1)
+            return isSelected ? Color(hex: "1a2a6c").opacity(0.1) : Color.gray.opacity(0.1)
         }
     }
     
     private var borderColor: Color {
-        if isAnswered {
+        if showResult && isAnswered {
             if isSelected {
                 return isCorrect ? Color(hex: "4caf50") : Color(hex: "f44336")
             } else if isCorrect {
@@ -260,7 +264,7 @@ struct AnswerButton: View {
                 return Color.gray.opacity(0.3)
             }
         } else {
-            return Color.gray.opacity(0.3)
+            return isSelected ? Color(hex: "1a2a6c") : Color.gray.opacity(0.3)
         }
     }
     
@@ -270,14 +274,18 @@ struct AnswerButton: View {
                 Text(answer)
                     .font(.body)
                     .fontWeight(isSelected ? .semibold : .regular)
-                    .foregroundColor(isSelected ? (isCorrect ? Color(hex: "4caf50") : Color(hex: "f44336")) : .primary)
+                    .foregroundColor(
+                        showResult && isSelected ?
+                            (isCorrect ? Color(hex: "4caf50") : Color(hex: "f44336")) :
+                            (isSelected ? Color(hex: "1a2a6c") : .primary)
+                    )
                     .padding(.vertical, 12)
                     .padding(.horizontal, 10)
                     .fixedSize(horizontal: false, vertical: true)
                 
                 Spacer()
                 
-                if isAnswered {
+                if showResult && isAnswered {
                     if isSelected {
                         Image(systemName: isCorrect ? "checkmark.circle.fill" : "xmark.circle.fill")
                             .foregroundColor(isCorrect ? Color(hex: "4caf50") : Color(hex: "f44336"))
@@ -287,6 +295,10 @@ struct AnswerButton: View {
                             .foregroundColor(Color(hex: "4caf50"))
                             .font(.system(size: 18))
                     }
+                } else if isSelected {
+                    Image(systemName: "circle.fill")
+                        .foregroundColor(Color(hex: "1a2a6c"))
+                        .font(.system(size: 18))
                 }
             }
             .padding(.horizontal, 12)
