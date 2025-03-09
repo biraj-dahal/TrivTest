@@ -149,7 +149,7 @@ struct TriviaGameView: View {
                 timeRemaining -= 1
             } else {
                 timer?.invalidate()
-                let _ = viewModel.submitAnswers()
+                let _ = viewModel.submitAnswers()  
                 showingResults = true
             }
         }
