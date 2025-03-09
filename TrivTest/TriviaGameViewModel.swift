@@ -13,6 +13,7 @@ class TriviaGameViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
     @Published var score = 0
+    @Published var answersSubmitted = false
     
     private let triviaService = TriviaService()
     
@@ -52,6 +53,7 @@ class TriviaGameViewModel: ObservableObject {
             }
         }
         
+        answersSubmitted = true
         return score
     }
 }
