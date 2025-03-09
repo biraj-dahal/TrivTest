@@ -33,7 +33,8 @@ The following **additional** features are implemented:
       - I have made the app exceptionally UI visual appealing.
 
 ## Video Walkthrough
-![Simulator Screen Recording - iPhone 16 Pro - 2025-03-02 at 00 38 35](https://github.com/user-attachments/assets/f1695c81-8e80-430f-8611-0412d030e1bb)
+
+![My Movie 5](https://github.com/user-attachments/assets/baa3e81d-ee7d-4145-aad5-aef0fa135015)
 
 
 
